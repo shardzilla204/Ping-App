@@ -82,6 +82,11 @@
       --medium-green-spring: #31E981;
     }
 
+    ::placeholder {
+        color: #FFFFFF;
+        font-family: 'Nunito', sans-serif;
+    }
+
     body {
       margin: 0;
       background-color: var(--dark-jungle-green);  
