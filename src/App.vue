@@ -1,7 +1,9 @@
 <template>
-  <Header title="Ping"/>
-  <Messages :messages="messages"/>
-  <CreateMessage @create-message="createMessage"/>
+  <div class="container">
+    <Header title="Ping"/>
+    <Messages :messages="messages"/>
+    <CreateMessage @create-message="createMessage"/>
+  </div>
 </template>
 
 <script>
@@ -87,8 +89,16 @@
         font-family: 'Nunito', sans-serif;
     }
 
-    body {
+    body, html {
+      height: 100%; 
       margin: 0;
-      background-color: var(--dark-jungle-green);  
+      background-color: var(--dark-jungle-green);
     } 
+
+    .container {
+      height: 100%;
+      margin: 25px;
+      display: flex;
+      flex-direction: column;
+    }
 </style>

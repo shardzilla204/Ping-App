@@ -15,11 +15,12 @@ export default {
 
 <style scoped>
     header {
-        height: 10vh;
+        min-height: 100px;
         background-color: #D8E4FF;
         display: flex;
         justify-content: center;
         align-items: center;
+        border-radius: 15px 15px 0px 0px;
     }
 
     h1 {

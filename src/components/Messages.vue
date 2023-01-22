@@ -1,9 +1,9 @@
 <template>
-    <div class="messagesContainer">
+    <section class="messagesContainer">
         <div :key="message.id" v-for="message in messages">
             <Message :message="message"/>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
@@ -28,10 +28,12 @@ export default {
 <style scoped>
     .messagesContainer {
         display: flex;
-        flex-direction: column-reverse;
-        align-items: end;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-end;
         gap: 25px;
         padding: 25px 15px 25px 15px;
         background-color: #C2CDE5;
+        flex: 1 1 auto;
     }
 </style>
