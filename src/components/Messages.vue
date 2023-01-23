@@ -1,7 +1,9 @@
 <template>
-    <section class="messagesContainer">
-        <div :key="message.id" v-for="message in messages">
-            <Message :message="message"/>
+    <section class="messages">
+        <div class="messagesContainer">
+            <div class="messageContainer" :key="message.id" v-for="message in messages">
+                <Message :message="message"/> 
+            </div>
         </div>
     </section>
 </template>
@@ -15,25 +17,35 @@ export default {
         messages: Array,
     },
     components: {
-    Message,
+        Message,
+    },
     methods: {
         createMessage(message) {
             this.messages = [...this.messages, message]
+            document.getElementsByClassName(messagesContainer).style.backgroundColor = "blue";
         },
-    }
-},
+    },
 }
 </script>
 
 <style scoped>
-    .messagesContainer {
+    .messages {
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         align-items: flex-end;
-        gap: 25px;
-        padding: 25px 15px 25px 15px;
+        padding: 0vw 2.5vh 0vw 2.5vh;
         background-color: #C2CDE5;
-        flex: 1 1 auto;
+        max-height: 70vh;
+        min-height: 65vh;
+    }
+
+    .messagesContainer {
+        padding: 25px 0px 25px 0px;
+        overflow: auto;
+    }
+
+    .messagesContainer::-webkit-scrollbar {
+        width: 0px;
     }
 </style>

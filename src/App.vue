@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <Header title="Ping"/>
+    <Header title="Ping" @set-username="setUsername"/>
     <Messages :messages="messages"/>
-    <CreateMessage @create-message="createMessage"/>
+    <CreateMessage :messages="messages" @create-message="createMessage"/>
   </div>
 </template>
 
@@ -10,10 +10,13 @@
   import CreateMessage from './components/CreateMessage.vue';
   import Header from './components/Header.vue';
   import Messages from './components/Messages.vue';
-  // import db from './firebase/index.js'
 
   import { initializeApp } from "firebase/app";
-  import { collection, getDocs, getFirestore, onSnapshot, addDoc } from "firebase/firestore";
+  import { collection, getDocs, getFirestore, 
+    onSnapshot, addDoc, query, 
+    orderBy, setDoc, doc} from "firebase/firestore";
+
+  import { v4 as uuidv4 } from 'uuid';
 
   const firebaseConfig = {
     apiKey: "AIzaSyDqnmbXypz1C_I7TKGVfm-R1xqshWJSm6s",
@@ -35,40 +38,81 @@
     Header,
     Messages,
     CreateMessage
-},
+  },
     methods: {
+      setUsername(username) {
+        this.username = username;
+      },
       async createMessage(message) {
         await addDoc(collection(db, "messages"), {
-          user: message.user,
-          text: message.text,
-          time: message.time
+          uuid: this.getUuid(),
+          username: this.username,
+          messageText: message.messageText,
+          timeText: message.timeText,
+          timeStamp: message.timeStamp,
         });
       },
+      async createUuid(uuidReference) {
+        addDoc(uuidReference, localStorageGet, {
+          uuid: localStorageGet
+        });
+      },
+      getUuid() {
+        return localStorage.getItem("uuid");
+      }
     },
     data() {
       return {
-        messages: []
+        uuid: '',
+        username: '',
+        messages: [],
       }
     },
     created() {
+      this.uuid = ''
+      this.username = 'Anonymous'
       this.messages = []
     },
-    mounted() {
-      onSnapshot(collection(db, "messages"), (querySnapshot) => {
+    async mounted() {
+      const localStorageGet = localStorage.getItem("uuid");
+      if (!localStorageGet) {
+        localStorage.setItem("uuid", uuidv4());
+      }
+
+      const uuidReference = collection(db, "uuid");
+      const uuidSnapshot = await getDocs(uuidReference);
+
+      const filter = uuidSnapshot.docs.filter(doc => doc.uuid != localStorageGet);
+      if (uuidSnapshot.docs.length != 0) {
+        uuidSnapshot.forEach(doc => {
+          console.log(doc.data().uuid);
+          console.log(filter);
+          if (filter.length <= 0) {
+            this.uuid = localStorageGet;
+            this.createUuid(uuidReference, localStorageGet);
+            return;
+          }
+        });
+      } else {
+        this.uuid = localStorageGet;
+        this.createUuid(uuidReference);
+        return;
+      }
+      
+
+      const newQuery = query(collection(db, "messages"), orderBy("timeStamp"));
+      onSnapshot(newQuery, (querySnapshot) => {
         const fbMessages = [];
         querySnapshot.forEach((doc) => {
-          console.log(doc.id, " => ", doc.data());
           const message = {
-            id: doc.id, 
-            user: doc.data().user,
-            text: doc.data().text,
-            time: doc.data().time,
+            username: doc.data().username,
+            messageText: doc.data().messageText,
+            timeText: doc.data().timeText,
           }
           fbMessages.push(message)
         });
         this.messages = fbMessages;
       });
-      
     },
   }
 </script>
@@ -90,15 +134,26 @@
     }
 
     body, html {
-      height: 100%; 
+      display: inline-flex;
+      height: 100vh;
+      width: 100vw;
       margin: 0;
+      padding: 0;
       background-color: var(--dark-jungle-green);
+      justify-content: center;
+      align-items: center;
+      /* overflow: hidden; */
     } 
-
+    
     .container {
-      height: 100%;
-      margin: 25px;
-      display: flex;
+      margin: 2.5vw 2.5vh;
+      display: inline-flex;
       flex-direction: column;
+      width: 90vw;
+    }
+
+    svg {
+      width: 0;
+      height: 0;
     }
 </style>
