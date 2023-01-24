@@ -12,7 +12,7 @@
 - Styles the box that allows you to configure messages.
 
 ## To-do List 
-- Save and log uuid onto firebase if uuid is not already logged into local storage.
+- Save and log uuid onto firebase if uuid is already logged into local storage.
 - Space out messages.
 - Add a settings window.
 - Add a toggleable light/dark theme.
