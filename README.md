@@ -1,5 +1,5 @@
 # Ping Application
- A project made with Vue.js and Firebase
+ A messaging web application made with Vue.js and Firebase
  
 ## Versions
 ##### v 1.0.1.4
