@@ -16,4 +16,4 @@
 - Space out messages.
 - Add a settings window.
 - Add a toggleable light/dark theme.
-- Add client sided messages on right and server sided messages on the left.
+- Add client sided messages to the right and server sided messages to the left.
