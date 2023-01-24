@@ -45,23 +45,29 @@
           const userReference = collection(db, "users");
           const userSnapshot = await getDocs(userReference);
           userSnapshot.forEach(doc => {
-            if (doc.data().uuid != localStorage.getItem("uuid")) return;
+            if (doc.data().uuid != this.getUuid()) return;
             this.updateUsername(doc.id);
           });
 
           const messagesReference = collection(db, "messages");
           const messagesSnapshot = await getDocs(messagesReference);
           messagesSnapshot.forEach(doc => {
-            if (doc.data().uuid != localStorage.getItem("uuid")) return;
+            if (doc.data().uuid != this.getUuid()) return;
             this.updateMessages(doc.id);
           });
       },
       async getUsername() {
         const userReference = collection(db, "users");
         const userSnapshot = await getDocs(userReference);
+        const filterSnapshot = userSnapshot.docs.filter(user => user.data().uuid == this.getUuid());
+        let present = false;
         userSnapshot.forEach(doc => {
-          if (doc.data().uuid != localStorage.getItem("uuid")) return;
           this.username = doc.data().username;
+
+          if (filterSnapshot.length != 0 || present) return;
+
+          this.addUuid(userReference);
+          present = true;
         });
       },
       async updateUsername(id) {
@@ -84,9 +90,15 @@
         });
       },  
       async addUuid(reference) {
+        const userReference = collection(db, "users");
+        const userSnapshot = await getDocs(userReference);
+        const filterSnapshot = userSnapshot.docs.filter(user => user.data().uuid == this.getUuid());
+
+        if (filterSnapshot.length > 0) return;
+
         await addDoc(reference, {
           uuid: this.getUuid(),
-          username: ''
+          username: 'Anonymous'
         });
       },
       async createUuid() {
@@ -128,7 +140,7 @@
       this.username = ''
       this.messages = []
     },
-    async mounted() {
+    mounted() {
       this.createUuid();
       this.getUsername();
 
