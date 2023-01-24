@@ -43,10 +43,6 @@ export default {
         border-radius: 15px 15px 0px 15px;
         max-width: 50%;
     }
-
-    .message:hover {
-        background-color: black;
-    }
     
     .timeText {
         color: var(--slate-gray);

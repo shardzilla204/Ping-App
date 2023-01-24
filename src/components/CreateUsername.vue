@@ -1,5 +1,5 @@
 <template>
-    <input class="username" type="text" v-model="username" @input="setUsername" placeholder="Username..." autocomplete="off">
+    <input class="username" type="text" v-model="username" placeholder="Username..." autocomplete="off">
 </template>
 <script>
     export default {
@@ -10,9 +10,9 @@
             }
         },
         methods: {
-            setUsername() {
-                this.$emit('set-username', this.username);
-            },
+        },
+        updated() {
+            this.$emit('set-username', this.username);
         }
     }
 </script>

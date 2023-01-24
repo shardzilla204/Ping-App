@@ -3,7 +3,7 @@
         <!-- <svg class="back">
             <use href="#arrow"/>
         </svg> -->
-        <h1>{{ username }}</h1>
+        <h1>{{ name }}</h1>
         <CreateUsername @set-username="setUsername"/>
     </header>
 </template>
@@ -14,28 +14,28 @@ import CreateUsername from './CreateUsername.vue';
 export default {
     name: "Header",
     props: {
-        title: String,
+        name: String,
     },
     components: { 
         CreateUsername,
     },
     data() {
         return {
-            username: 'Anonymous',
+            username: '',
         }
     },
     methods: {
-        setUsername(username) {
-            this.username = username;
+        setUsername(name) {
+            this.username = name;
             this.$emit('set-username', this.username);
 
-            if (username.length > 0 && username.trim() != '') return
+            if (this.username.length > 0 && this.username.trim() != '') return;
 
             this.username = 'Anonymous';
             this.$emit('set-username', this.username);
 
         }
-    }
+    },
 }
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <Header title="Ping" @set-username="setUsername"/>
+    <Header :name="username" @set-username="setUsername"/>
     <Messages :messages="messages"/>
     <CreateMessage :messages="messages" @create-message="createMessage"/>
   </div>
@@ -14,7 +14,7 @@
   import { initializeApp } from "firebase/app";
   import { collection, getDocs, getFirestore, 
     onSnapshot, addDoc, query, 
-    orderBy, setDoc, doc} from "firebase/firestore";
+    orderBy, doc, updateDoc} from "firebase/firestore";
 
   import { v4 as uuidv4 } from 'uuid';
 
@@ -40,8 +40,34 @@
     CreateMessage
   },
     methods: {
-      setUsername(username) {
-        this.username = username;
+      async setUsername(username) {
+          this.username = username;
+          const userReference = collection(db, "users");
+          const userSnapshot = await getDocs(userReference);
+          userSnapshot.forEach(doc => {
+            if (doc.data().uuid != localStorage.getItem("uuid")) return;
+            this.updateUsername(doc.id);
+          });
+
+          const messagesReference = collection(db, "messages");
+          const messagesSnapshot = await getDocs(messagesReference);
+          messagesSnapshot.forEach(doc => {
+            if (doc.data().uuid != localStorage.getItem("uuid")) return;
+            this.updateMessages(doc.id);
+          });
+      },
+      async getUsername() {
+        const userReference = collection(db, "users");
+        const userSnapshot = await getDocs(userReference);
+        userSnapshot.forEach(doc => {
+          if (doc.data().uuid != localStorage.getItem("uuid")) return;
+          this.username = doc.data().username;
+        });
+      },
+      async updateUsername(id) {
+        await updateDoc(doc(db, "users", id), {
+          username: this.username,
+        });
       },
       async createMessage(message) {
         await addDoc(collection(db, "messages"), {
@@ -52,14 +78,43 @@
           timeStamp: message.timeStamp,
         });
       },
-      async createUuid(uuidReference) {
-        addDoc(uuidReference, localStorageGet, {
-          uuid: localStorageGet
+      async updateMessages(id) {
+        await updateDoc(doc(db, "messages", id), {
+          username: this.username,
+        });
+      },  
+      async addUuid(reference) {
+        await addDoc(reference, {
+          uuid: this.getUuid(),
+          username: ''
+        });
+      },
+      async createUuid() {
+        const getUuid = this.getUuid();
+
+        if (!getUuid) {
+          localStorage.setItem("uuid", uuidv4());
+        };
+
+        const uuidReference = collection(db, "users");
+        const uuidSnapshot = await getDocs(uuidReference);
+
+        if (uuidSnapshot.docs.length == 0) {
+          this.addUuid(uuidReference)
+        };
+
+        uuidSnapshot.forEach(doc => {
+          if (doc.data().uuid.length > 0) return;
+
+          if (doc.date().uuid != getUuid) return; 
+
+          this.uuid = getUuid;
+          this.addUuid(uuidReference);
         });
       },
       getUuid() {
         return localStorage.getItem("uuid");
-      }
+      },
     },
     data() {
       return {
@@ -70,35 +125,12 @@
     },
     created() {
       this.uuid = ''
-      this.username = 'Anonymous'
+      this.username = ''
       this.messages = []
     },
     async mounted() {
-      const localStorageGet = localStorage.getItem("uuid");
-      if (!localStorageGet) {
-        localStorage.setItem("uuid", uuidv4());
-      }
-
-      const uuidReference = collection(db, "uuid");
-      const uuidSnapshot = await getDocs(uuidReference);
-
-      const filter = uuidSnapshot.docs.filter(doc => doc.uuid != localStorageGet);
-      if (uuidSnapshot.docs.length != 0) {
-        uuidSnapshot.forEach(doc => {
-          console.log(doc.data().uuid);
-          console.log(filter);
-          if (filter.length <= 0) {
-            this.uuid = localStorageGet;
-            this.createUuid(uuidReference, localStorageGet);
-            return;
-          }
-        });
-      } else {
-        this.uuid = localStorageGet;
-        this.createUuid(uuidReference);
-        return;
-      }
-      
+      this.createUuid();
+      this.getUsername();
 
       const newQuery = query(collection(db, "messages"), orderBy("timeStamp"));
       onSnapshot(newQuery, (querySnapshot) => {
@@ -142,7 +174,6 @@
       background-color: var(--dark-jungle-green);
       justify-content: center;
       align-items: center;
-      /* overflow: hidden; */
     } 
     
     .container {
@@ -150,6 +181,7 @@
       display: inline-flex;
       flex-direction: column;
       width: 90vw;
+      min-width: 250px;
     }
 
     svg {
