@@ -9,7 +9,7 @@
 ##### v 1.0.1.1
 - Enabled to press enter to submit & added UI scaling.
 ##### v 1.0.1
-- Styles the box that allows you to configure messages.
+- Styled the box that allows you to configure messages.
 
 ## To-do List 
 - Save and log uuid onto firebase if uuid is already logged into local storage.
